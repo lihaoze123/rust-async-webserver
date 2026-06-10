@@ -34,6 +34,10 @@ async fn main() -> Result<(), anyhow::Error> {
     let listener = TcpListener::bind("127.0.0.1:7878").await?;
     loop {
         let (socket, _) = listener.accept().await?;
-        handle_connection(socket).await?;
+        tokio::spawn(async move {
+            if let Err(err) = handle_connection(socket).await {
+                eprintln!("connection error: {err}");
+            }
+        });
     }
 }
